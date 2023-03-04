@@ -24,6 +24,7 @@ class UserManager(BaseUserManager):
 
     def create_superuser(self, email=None, password=None, **extra_fields):
         extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_active', True)
         extra_fields.setdefault('is_superuser', True)
 
         if extra_fields.get('is_staff') is not True:
@@ -38,7 +39,7 @@ class User(AbstractBaseUser):
     CHOICES = [
         (0, 'Admin'),
         (1, 'Teacher'),
-        (1, 'Student'),
+        (2, 'Student'),
     ]
     username = None
     email = models.EmailField(max_length=255, db_index=True, unique=True)
@@ -50,6 +51,8 @@ class User(AbstractBaseUser):
     role = models.IntegerField('Статус пользователя', choices=CHOICES, default=1)
     created_at = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False)
+    is_superuser = models.BooleanField(default=False)
     USERNAME_FIELD = 'email'
     objects = UserManager()
 
@@ -59,3 +62,9 @@ class User(AbstractBaseUser):
     def save(self, *args, **kwargs):
         self.email = self.email.lower()
         return super().save(*args, **kwargs)
+
+    def has_perm(self, perm, obj=None):
+        return self.is_superuser
+
+    def has_module_perms(self, app_label):
+        return self.is_superuser

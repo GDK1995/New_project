@@ -38,3 +38,10 @@ class Login(TokenObtainPairView):
         return super().post(request, *args, **kwargs)
 
 login = Login.as_view()
+
+class UserListView(ListAPIView):
+    """Вывод всех пользователей"""
+    serializer_class = UserSerializer
+    queryset = User.objects.all()
+
+list_user = UserListView.as_view()
